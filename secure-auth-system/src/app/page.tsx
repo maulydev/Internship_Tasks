@@ -1,5 +1,4 @@
 import GetApi from "@/components/get-api";
-import SignOut from "@/components/signout";
 import Link from "next/link";
 
 export default function Home() {
@@ -20,7 +19,6 @@ export default function Home() {
         </nav>
 
         <div className="flex items-center justify-center mt-8">
-          {/* <SignOut /> */}
           <GetApi />
         </div>
       </div>

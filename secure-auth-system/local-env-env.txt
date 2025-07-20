@@ -1,0 +1,3 @@
+ACCESS_SECRET=testaccesssecret;
+REFRESH_SECRET=testrefreshsecret;
+DATABASE_URL="postgresql://postgres:1234@localhost:5432/secureauthsystem?schema=public"

@@ -1,5 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 "use client";
 
+import { Payload } from "@/types";
 import { validateEmail, validatePassword } from "@/utils/validator";
 import axios from "axios";
 import Link from "next/link";
@@ -9,6 +12,7 @@ import { BiLock, BiUser } from "react-icons/bi";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { VscLoading } from "react-icons/vsc";
 import { toast } from "react-toastify";
+import { jwtDecode } from "jwt-decode";
 
 type FormData = { email: string; password: string };
 type InputError = { emailError: string; passwordError: string };
@@ -62,9 +66,25 @@ const SignInForm = () => {
       });
 
       if (response?.status === 200) {
-        toast.success(response?.data?.message);
-        localStorage.setItem("access", response?.data?.data?.access);
-        router.replace("/protected");
+        const accessToken = response?.data?.data?.access;
+
+        if (!accessToken) {
+          toast.error("Missing access");
+          return;
+        }
+
+        localStorage.setItem("access", accessToken);
+        toast.success(response?.data?.message || "Sign In successful");
+
+        const access = jwtDecode(accessToken) as Payload;
+
+        if (access?.role === "ADMIN") {
+          router.replace("/protected/admin");
+        } else if (access?.role === "USER") {
+          router.replace("/protected/user");
+        } else {
+          router.replace("/not-found");
+        }
       }
     } catch (error: any) {
       toast.error(error?.response?.data?.message);
@@ -145,12 +165,19 @@ const SignInForm = () => {
           "Sign In"
         )}
       </button>
-      <p className="text-center text-gray-500 text-sm">
-        Don't have an account?{" "}
-        <Link href="/signup" className="text-blue-500 font-bold">
-          Sign Up
+
+      <div className="flex items-center justify-center gap-x-4 text-gray-500 mt-2">
+        <Link href="/password-reset" className="text-sm hover:underline">
+          Forgot password?
         </Link>
-      </p>
+        |
+        <p className="text-sm">
+          New here?{" "}
+          <Link href="/signup" className="text-blue-500 font-bold">
+            Sign Up
+          </Link>
+        </p>
+      </div>
     </form>
   );
 };
