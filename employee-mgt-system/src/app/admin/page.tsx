@@ -1,6 +1,11 @@
 import EmployeeTable from "@/components/employees/employee-table";
+import SignOut from "@/components/signout";
+import { getSession } from "@/utils/session";
+import { BiUser } from "react-icons/bi";
 
-const AdminDashboard = () => {
+const AdminDashboard = async () => {
+  const session = await getSession();
+
   return (
     <div className="bg-gray-100 relative">
       <header className="bg-blue-500 sticky top-0">
@@ -9,13 +14,29 @@ const AdminDashboard = () => {
             Employee Management System
           </h1>
 
-          <div className="text-white flex items-center gap-x-3">
-            <div className="size-12 bg-black/50 rounded-full border-2" />
-            <span>
-              <p className="font-extrabold leading-3">Trapcy Beat</p>
-              <small>Administrator</small>
-            </span>
-          </div>
+          <details className="relative">
+            <summary className="text-white flex items-center gap-x-3 cursor-pointer">
+              <div className="size-12 bg-black/50 rounded-full border-2 flex items-center justify-center text-2xl">
+                <BiUser />
+              </div>
+              <span>
+                <p className="font-extrabold leading-3">
+                  {session?.session?.name}
+                </p>
+                <small>
+                  {session?.session?.role === "ADMIN" ? "Administrator" : ""}
+                </small>
+              </span>
+            </summary>
+            <div className="bg-white p-4 absolute right-0 mt-5 shadow-xl">
+              <ul className="space-y-1 mb-2">
+                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Profile</li>
+                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Settings</li>
+                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Notifications</li>
+              </ul>
+              <SignOut />
+            </div>
+          </details>
         </div>
       </header>
 

@@ -19,9 +19,9 @@ const SignOut = () => {
   return (
     <button
       onClick={handleSignout}
-      className="bg-red-500 text-white px-8 py-4 w-max cursor-pointer hover:bg-red-400"
+      className="bg-red-500 text-white px-8 py-2 w-max cursor-pointer hover:bg-red-400"
     >
-      Logout
+      Sign Out
     </button>
   );
 };
