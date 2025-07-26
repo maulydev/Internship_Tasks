@@ -1,0 +1,86 @@
+import { auth } from "@/utils/auth";
+import db from "@/utils/prisma";
+import { NextRequest, NextResponse } from "next/server";
+
+export const PATCH = async (
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) => {
+  try {
+    const result = await auth(request);
+
+    if (!result || !result.decodedToken) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+    const body = await request.json();
+    const { name } = body;
+
+    if (!name) {
+      return NextResponse.json({ error: "Name is required" }, { status: 400 });
+    }
+
+    const updated = await db.position.update({
+      where: { id: Number(id) },
+      data: { name },
+    });
+
+    return NextResponse.json(
+      { message: "Position updated successfully", data: updated },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.error("PATCH error:", error);
+
+    if (error.code === "P2025") {
+      return NextResponse.json(
+        { error: "Position not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: error.message || "Something went wrong" },
+      { status: 500 }
+    );
+  }
+};
+
+export const DELETE = async (
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) => {
+  try {
+    const result = await auth(request);
+
+    if (!result || !result.decodedToken) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+
+    const deleted = await db.position.delete({
+      where: { id: Number(id) },
+    });
+
+    return NextResponse.json(
+      { message: "Position deleted successfully", data: deleted },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.error("DELETE error:", error);
+
+    if (error.code === "P2025") {
+      return NextResponse.json(
+        { error: "Position not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: error.message || "Something went wrong" },
+      { status: 500 }
+    );
+  }
+};

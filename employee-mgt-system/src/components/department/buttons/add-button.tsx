@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { BiUserPlus } from "react-icons/bi";
-import AddForm from "./add-form";
+import AddForm from "../add-form";
 
 const AddButton = () => {
   const [showForm, setShowForm] = useState(false);
@@ -10,20 +10,17 @@ const AddButton = () => {
   const handleClose = () => setShowForm(false);
   const handleOpen = () => setShowForm(true);
 
-  const handleSave = () => {};
-
   return (
     <>
-      <button onClick={handleOpen} className="bg-blue-500 hover:bg-blue-400 flex items-center gap-x-2">
+      <button
+        onClick={handleOpen}
+        className="bg-blue-500 hover:bg-blue-400 flex items-center gap-x-2"
+      >
         <BiUserPlus className="text-xl" />
         <span>Add</span>
       </button>
 
-      <AddForm
-        showForm={showForm}
-        handleClose={handleClose}
-        handleSave={handleSave}
-      />
+      <AddForm showForm={showForm} handleClose={handleClose} />
     </>
   );
 };

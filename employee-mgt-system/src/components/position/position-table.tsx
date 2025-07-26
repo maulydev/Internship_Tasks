@@ -1,21 +1,20 @@
 "use client";
 
 import { FaSearch } from "react-icons/fa";
-import ImportTrigger from "./buttons/import-trigger";
-import AddButton from "./buttons/add-button";
 import { BsPeople } from "react-icons/bs";
-import { useFetchEmployees } from "@/hooks/employees";
-import ViewButton from "./buttons/view-button";
-import EditButton from "./buttons/edit-button";
-import TrashButton from "./buttons/trash-button";
+import { useFetchPositions } from "@/hooks/meta"; // Use the new hook
+import AddButton from "./buttons/add-button";
+import EditPositionButton from "./buttons/edit-button";
+import { Meta } from "@/types";
+import DeleteButton from "./buttons/delete-button";
 
-const EmployeeTable = () => {
+const PositionTable = () => {
   const {
-    data: employees = [],
+    data: positions = [],
     isLoading,
     isError,
     error,
-  } = useFetchEmployees();
+  } = useFetchPositions();
 
   return (
     <>
@@ -26,7 +25,7 @@ const EmployeeTable = () => {
 
         {isError && (
           <div className="text-center py-20 text-red-500">
-            Failed to load employees: {error?.message || "Something went wrong"}
+            Failed to load positions: {error?.message || "Something went wrong"}
           </div>
         )}
 
@@ -38,53 +37,37 @@ const EmployeeTable = () => {
                   <input
                     type="text"
                     name="searchTerm"
-                    placeholder="Search employee"
+                    placeholder="Search position"
                     className="py-4 outline-none min-w-xs"
                   />
                   <FaSearch />
                 </div>
-                <select className="bg-gray-100 px-6 py-4 outline-none">
-                  <option value="ACTIVE">Active</option>
-                  <option value="INACTIVE">Inactive</option>
-                </select>
               </span>
               <span className="flex flex-nowrap gap-x-4 [&>*]:px-8 [&>*]:py-4 [&>*]:cursor-pointer text-white font-bold">
                 <AddButton />
-                <ImportTrigger />
               </span>
             </div>
 
-            {employees.length > 0 ? (
+            {positions.length > 0 ? (
               <table className="w-full mt-8">
                 <thead>
                   <tr className="[&>*]:text-start [&>*]:p-4 bg-blue-500 text-white">
-                    <th>Sn</th>
-                    <th>Emp ID</th>
+                    <th>ID</th>
                     <th>Name</th>
-                    <th>Phone</th>
-                    <th>Position</th>
-                    <th>Department</th>
-                    <th>Status</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {employees.map((emp, idx) => (
+                  {positions.map((pos: Meta, idx: number) => (
                     <tr
-                      key={emp.id}
+                      key={pos.id}
                       className="[&>*]:p-4 hover:bg-blue-50 even:bg-blue-0"
                     >
                       <td>{idx + 1}</td>
-                      <td>{emp.empId || `Emp00${idx + 1}`}</td>
-                      <td>{`${emp.firstName} ${emp.lastName}`}</td>
-                      <td>{emp.phone}</td>
-                      <td>{emp.position?.name}</td>
-                      <td>{emp.department?.name || "N/A"}</td>
-                      <td>{emp.status || "Active"}</td>
+                      <td>{pos.name}</td>
                       <td className="space-x-2">
-                        <ViewButton selectedEmpId={emp?.empId} />
-                        <EditButton selectedEmpId={emp?.empId} />
-                        <TrashButton selectedEmpId={emp?.empId} />
+                        <EditPositionButton selectedPosition={pos} />
+                        <DeleteButton selectedPosition={pos} />
                       </td>
                     </tr>
                   ))}
@@ -93,7 +76,7 @@ const EmployeeTable = () => {
             ) : (
               <div className="p-16 text-gray-400 text-center bg-gray-100 mt-4 font-bold flex flex-col items-center">
                 <BsPeople className="text-8xl" />
-                <p>No employee found</p>
+                <p>No positions found</p>
               </div>
             )}
           </>
@@ -103,4 +86,4 @@ const EmployeeTable = () => {
   );
 };
 
-export default EmployeeTable;
+export default PositionTable;

@@ -1,18 +1,19 @@
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { BiSave } from "react-icons/bi";
 import { CgClose, CgSpinner } from "react-icons/cg";
 import { toast } from "react-toastify";
 import z from "zod";
 
-import { usePostEmployee } from "@/hooks/employees";
+import { useUpdateEmployee, useFetchEmployeeDetail } from "@/hooks/employees";
 import { useFetchPositions, useFetchDepartments } from "@/hooks/meta";
 
-type AddFormProps = {
+type EditFormProps = {
   showForm: boolean;
   handleClose: () => void;
+  selectedEmpId: string;
 };
 
-export const employeeFormSchema = z.object({
+const employeeFormSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
   phone: z.string().min(1, "Phone is required"),
@@ -34,42 +35,50 @@ const formFields = [
   { label: "Date Joined", name: "joinedDate", type: "date" },
 ];
 
-const AddForm = ({ showForm, handleClose }: AddFormProps) => {
+const EditEmployeeForm = ({
+  showForm,
+  handleClose,
+  selectedEmpId,
+}: EditFormProps) => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     phone: "",
     email: "",
     salary: "",
+    status: "",
     joinedDate: "",
     position: "",
     department: "",
   });
 
-  const { data: positions = [], isLoading: loadingPositions } =
-    useFetchPositions();
-  const { data: departments = [], isLoading: loadingDepartments } =
-    useFetchDepartments();
-  const { mutate: postEmployee, isPending: isSubmitting } = usePostEmployee();
+  const { data: employeeDetail, isLoading: isLoadingDetail } = useFetchEmployeeDetail(selectedEmpId);
+  const { data: positions = [], isLoading: loadingPositions } = useFetchPositions();
+  const { data: departments = [], isLoading: loadingDepartments } = useFetchDepartments();
+  const { mutate: updateEmployee, isPending: isSubmitting } = useUpdateEmployee(selectedEmpId);
+
+  useEffect(() => {
+    if (employeeDetail) {
+      setFormData({
+        firstName: employeeDetail.firstName || "",
+        lastName: employeeDetail.lastName || "",
+        phone: employeeDetail.phone || "",
+        email: employeeDetail.email || "",
+        salary: employeeDetail.salary || "",
+        status: employeeDetail.status || "",
+        joinedDate: employeeDetail.joinedDate?.split("T")[0] || "",
+        position: employeeDetail.position?.id?.toString() || "",
+        department: employeeDetail.department?.id?.toString() || "",
+      });
+    }
+  }, [employeeDetail]);
 
   const handleInputChange = (
-    e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-
-  const handleClearForm = () =>
-    setFormData({
-      firstName: "",
-      lastName: "",
-      phone: "",
-      email: "",
-      salary: "",
-      joinedDate: "",
-      position: "",
-      department: "",
-    });
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -79,18 +88,18 @@ const AddForm = ({ showForm, handleClose }: AddFormProps) => {
     if (!parsed.success) {
       const errors = parsed.error.flatten().fieldErrors;
       Object.entries(errors).forEach(([field, msgs]) => {
-        if (msgs && msgs.length > 0) toast.error(`${field}: ${msgs[0]}`);
+        if (msgs?.length) toast.error(`${field}: ${msgs[0]}`);
       });
       return;
     }
 
-    postEmployee(formData, {
+    updateEmployee(formData, {
       onSuccess: () => {
-        toast.success("Employee successfully added");
-        handleClearForm();
+        toast.success("Employee updated successfully");
+        handleClose();
       },
       onError: (err: any) => {
-        toast.error(err?.response?.data?.error || "Submission failed");
+        toast.error(err?.response?.data?.error || "Update failed");
         console.error(err);
       },
     });
@@ -113,17 +122,15 @@ const AddForm = ({ showForm, handleClose }: AddFormProps) => {
           type="button"
           onClick={handleClose}
           className="absolute right-5 top-5 text-xl cursor-pointer"
-          title={
-            isSubmitting ? "Can not close form when submitting" : "Close form"
-          }
+          title={isSubmitting ? "Cannot close while submitting" : "Close form"}
         >
           <CgClose />
         </button>
 
         <div className="col-span-full mb-4">
-          <h1 className="text-xl font-bold">Add New Employee</h1>
+          <h1 className="text-xl font-bold">Edit Employee</h1>
           <p className="text-gray-500 font-normal">
-            Provide the employee detail to add them to the company.
+            Update the employee's details and click save.
           </p>
         </div>
 
@@ -137,7 +144,7 @@ const AddForm = ({ showForm, handleClose }: AddFormProps) => {
               placeholder={label}
               className="py-4 outline-none min-w-xs bg-gray-100 px-4"
               value={(formData as any)[name]}
-              onChange={handleInputChange} 
+              onChange={handleInputChange}
             />
           </div>
         ))}
@@ -153,8 +160,8 @@ const AddForm = ({ showForm, handleClose }: AddFormProps) => {
             disabled={loadingPositions}
           >
             <option value="">-- Select Position --</option>
-            {positions?.map(({ id, name }: { id: number; name: string }) => (
-              <option key={`pos-${id}`} value={`${id}`}>
+            {positions.map(({ id, name }: { id: string; name: string }) => (
+              <option key={`pos-${id}`} value={id}>
                 {name}
               </option>
             ))}
@@ -172,24 +179,40 @@ const AddForm = ({ showForm, handleClose }: AddFormProps) => {
             disabled={loadingDepartments}
           >
             <option value="">-- Select Department --</option>
-            {departments?.map(({ id, name }: { id: number; name: string }) => (
-              <option key={`dep-${id}`} value={`${id}`}>
+            {departments.map(({ id, name }: { id: string; name: string }) => (
+              <option key={`dep-${id}`} value={id}>
                 {name}
               </option>
             ))}
           </select>
         </div>
+        
+        <div className="flex flex-col gap-y-2">
+          <label htmlFor="department">Status</label>
+          <select
+            id="status"
+            name="status"
+            className="py-4 outline-none min-w-xs bg-gray-100 px-4"
+            onChange={handleInputChange}
+            value={formData.status}
+            disabled={loadingDepartments}
+          >
+            <option value="">-- Select Status --</option>
+            <option value="ACTIVE">Active</option>
+            <option value="INACTIVE">Inactive</option>
+          </select>
+        </div>
 
         <button
           disabled={isSubmitting}
-          className="bg-blue-500 hover:bg-blue-400 flex items-center justify-center text-white gap-x-2 col-span-full p-4 cursor-pointer"
+          className="bg-blue-600 hover:bg-blue-500 flex items-center justify-center text-white gap-x-2 col-span-full p-4 cursor-pointer"
         >
           {isSubmitting ? (
             <CgSpinner className="animate-spin" />
           ) : (
             <>
               <BiSave className="text-xl" />
-              <span>Save</span>
+              <span>Update</span>
             </>
           )}
         </button>
@@ -198,4 +221,4 @@ const AddForm = ({ showForm, handleClose }: AddFormProps) => {
   );
 };
 
-export default AddForm;
+export default EditEmployeeForm;

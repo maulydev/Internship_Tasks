@@ -1,21 +1,20 @@
 "use client";
 
 import { FaSearch } from "react-icons/fa";
-import ImportTrigger from "./buttons/import-trigger";
-import AddButton from "./buttons/add-button";
 import { BsPeople } from "react-icons/bs";
-import { useFetchEmployees } from "@/hooks/employees";
-import ViewButton from "./buttons/view-button";
-import EditButton from "./buttons/edit-button";
-import TrashButton from "./buttons/trash-button";
+import { useFetchDepartments } from "@/hooks/meta";
+import AddButton from "./buttons/add-button";
+import EditDepartmentButton from "./buttons/edit-button";
+import DeleteButton from "./buttons/delete-button";
+import { Meta } from "@/types";
 
-const EmployeeTable = () => {
+const DepartmentTable = () => {
   const {
-    data: employees = [],
+    data: departments = [],
     isLoading,
     isError,
     error,
-  } = useFetchEmployees();
+  } = useFetchDepartments();
 
   return (
     <>
@@ -26,7 +25,8 @@ const EmployeeTable = () => {
 
         {isError && (
           <div className="text-center py-20 text-red-500">
-            Failed to load employees: {error?.message || "Something went wrong"}
+            Failed to load departments:{" "}
+            {error?.message || "Something went wrong"}
           </div>
         )}
 
@@ -38,53 +38,37 @@ const EmployeeTable = () => {
                   <input
                     type="text"
                     name="searchTerm"
-                    placeholder="Search employee"
+                    placeholder="Search department"
                     className="py-4 outline-none min-w-xs"
                   />
                   <FaSearch />
                 </div>
-                <select className="bg-gray-100 px-6 py-4 outline-none">
-                  <option value="ACTIVE">Active</option>
-                  <option value="INACTIVE">Inactive</option>
-                </select>
               </span>
               <span className="flex flex-nowrap gap-x-4 [&>*]:px-8 [&>*]:py-4 [&>*]:cursor-pointer text-white font-bold">
                 <AddButton />
-                <ImportTrigger />
               </span>
             </div>
 
-            {employees.length > 0 ? (
+            {departments.length > 0 ? (
               <table className="w-full mt-8">
                 <thead>
                   <tr className="[&>*]:text-start [&>*]:p-4 bg-blue-500 text-white">
-                    <th>Sn</th>
-                    <th>Emp ID</th>
+                    <th>ID</th>
                     <th>Name</th>
-                    <th>Phone</th>
-                    <th>Position</th>
-                    <th>Department</th>
-                    <th>Status</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {employees.map((emp, idx) => (
+                  {departments.map((dept: Meta, idx: number) => (
                     <tr
-                      key={emp.id}
+                      key={dept.id}
                       className="[&>*]:p-4 hover:bg-blue-50 even:bg-blue-0"
                     >
                       <td>{idx + 1}</td>
-                      <td>{emp.empId || `Emp00${idx + 1}`}</td>
-                      <td>{`${emp.firstName} ${emp.lastName}`}</td>
-                      <td>{emp.phone}</td>
-                      <td>{emp.position?.name}</td>
-                      <td>{emp.department?.name || "N/A"}</td>
-                      <td>{emp.status || "Active"}</td>
+                      <td>{dept.name}</td>
                       <td className="space-x-2">
-                        <ViewButton selectedEmpId={emp?.empId} />
-                        <EditButton selectedEmpId={emp?.empId} />
-                        <TrashButton selectedEmpId={emp?.empId} />
+                        <EditDepartmentButton selectedDept={dept} />
+                        <DeleteButton selectedDept={dept} />
                       </td>
                     </tr>
                   ))}
@@ -93,7 +77,7 @@ const EmployeeTable = () => {
             ) : (
               <div className="p-16 text-gray-400 text-center bg-gray-100 mt-4 font-bold flex flex-col items-center">
                 <BsPeople className="text-8xl" />
-                <p>No employee found</p>
+                <p>No departments found</p>
               </div>
             )}
           </>
@@ -103,4 +87,4 @@ const EmployeeTable = () => {
   );
 };
 
-export default EmployeeTable;
+export default DepartmentTable;

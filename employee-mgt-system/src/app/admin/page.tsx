@@ -1,4 +1,4 @@
-import EmployeeTable from "@/components/employees/employee-table";
+import Views from "@/components/employees/views";
 import SignOut from "@/components/signout";
 import { getSession } from "@/utils/session";
 import { BiUser } from "react-icons/bi";
@@ -30,9 +30,15 @@ const AdminDashboard = async () => {
             </summary>
             <div className="bg-white p-4 absolute right-0 mt-5 shadow-xl">
               <ul className="space-y-1 mb-2">
-                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Profile</li>
-                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Settings</li>
-                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Notifications</li>
+                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                  Profile
+                </li>
+                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                  Settings
+                </li>
+                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                  Notifications
+                </li>
               </ul>
               <SignOut />
             </div>
@@ -41,7 +47,7 @@ const AdminDashboard = async () => {
       </header>
 
       <main className="p-8">
-        <EmployeeTable />
+        <Views />
       </main>
 
       <footer className="text-center p-8 bg-white">

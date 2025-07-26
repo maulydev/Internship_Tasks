@@ -19,8 +19,8 @@ enum Role {
 }
 
 enum Status {
-  Active
-  Inactive
+  ACTIVE
+  INACTIVE
 }
 
 model User {
@@ -45,18 +45,26 @@ model Department {
   employees Employees[]
 }
 
+model Position {
+  id        Int         @id @default(autoincrement())
+  name      String
+  employees Employees[]
+}
+
 model Employees {
-  id          Int         @id @default(autoincrement())
-  empId       String      @unique
-  email       String      @unique
-  firstName   String
-  lastName    String
-  phone       String
-  position    String
-  salary      Float
-  joinedDate  DateTime    @default(now())
-  status      Status      @default(Active)
-  createdAt   DateTime    @default(now())
-  department  Department? @relation(fields: [deprtmentId], references: [id])
-  deprtmentId Int?
+  id           Int         @id @default(autoincrement())
+  empId        String      @unique
+  email        String      @unique
+  firstName    String
+  lastName     String
+  phone        String      @unique
+  salary       String
+  joinedDate   DateTime    @default(now())
+  status       Status      @default(ACTIVE)
+  createdAt    DateTime    @default(now())
+  department   Department? @relation(fields: [departmentId], references: [id])
+  departmentId Int?
+  position     Position    @relation(fields: [positionId], references: [id])
+  positionId   Int
+  inTrash      Boolean     @default(false)
 }
