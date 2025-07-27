@@ -7,6 +7,7 @@ import AddButton from "./buttons/add-button";
 import EditPositionButton from "./buttons/edit-button";
 import { Meta } from "@/types";
 import DeleteButton from "./buttons/delete-button";
+import { useState } from "react";
 
 const PositionTable = () => {
   const {
@@ -15,6 +16,16 @@ const PositionTable = () => {
     isError,
     error,
   } = useFetchPositions();
+
+  const [searchTerm, setSearchTerm] = useState<string>("");
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const filteredPositions = positions.filter((pos: Meta) =>
+    pos.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <>
@@ -39,6 +50,7 @@ const PositionTable = () => {
                     name="searchTerm"
                     placeholder="Search position"
                     className="py-4 outline-none min-w-xs"
+                    onChange={handleSearch}
                   />
                   <FaSearch />
                 </div>
@@ -48,7 +60,7 @@ const PositionTable = () => {
               </span>
             </div>
 
-            {positions.length > 0 ? (
+            {filteredPositions?.length > 0 ? (
               <table className="w-full mt-8">
                 <thead>
                   <tr className="[&>*]:text-start [&>*]:p-4 bg-blue-500 text-white">
@@ -58,7 +70,7 @@ const PositionTable = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {positions.map((pos: Meta, idx: number) => (
+                  {filteredPositions?.map((pos: Meta, idx: number) => (
                     <tr
                       key={pos.id}
                       className="[&>*]:p-4 hover:bg-blue-50 even:bg-blue-0"

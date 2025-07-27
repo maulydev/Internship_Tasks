@@ -12,11 +12,42 @@ export const GET = async (request: NextRequest) => {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { searchParams } = new URL(request.url);
+    const search = searchParams.get("search")?.toLowerCase() || "";
+    const statusFilter =
+      (searchParams.get("status")?.toUpperCase() as "ACTIVE" | "INACTIVE") || "ACTIVE";
+
     const data = await db.employees.findMany({
-      where: { inTrash: false },
+      where: {
+        inTrash: false,
+        ...(search && {
+          OR: [
+            { firstName: { contains: search, mode: "insensitive" } },
+            { lastName: { contains: search, mode: "insensitive" } },
+            { email: { contains: search, mode: "insensitive" } },
+            { phone: { contains: search, mode: "insensitive" } },
+            {
+              position: {
+                name: { contains: search, mode: "insensitive" },
+              },
+            },
+            {
+              department: {
+                name: { contains: search, mode: "insensitive" },
+              },
+            },
+          ],
+        }),
+        status: {
+          equals: statusFilter,
+        },
+      },
       include: {
         position: { select: { name: true } },
         department: { select: { name: true } },
+      },
+      orderBy: {
+        empId: "desc",
       },
     });
 

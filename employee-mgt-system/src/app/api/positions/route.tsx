@@ -10,7 +10,11 @@ export const GET = async (request: NextRequest) => {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const data = await db.position.findMany();
+    const data = await db.position.findMany({
+      orderBy: {
+        id: "desc",
+      },
+    });
 
     return NextResponse.json(
       { message: "success", data: data },
@@ -34,10 +38,7 @@ export const POST = async (request: NextRequest) => {
     const { name } = body;
 
     if (!name) {
-      return NextResponse.json(
-        { error: "Name is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
 
     const created = await db.position.create({
@@ -50,6 +51,9 @@ export const POST = async (request: NextRequest) => {
     );
   } catch (error) {
     console.error("POST error:", error);
-    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 }
+    );
   }
 };

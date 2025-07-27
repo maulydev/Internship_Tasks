@@ -2,11 +2,16 @@ import { Employee, FormData } from "@/types";
 import axiosInstance from "@/utils/axiosInstance";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-export const useFetchEmployees = () => {
+export const useFetchEmployees = (searchTerm: string, statusFilter: "ACTIVE" | "INACTIVE") => {
   return useQuery<Employee[]>({
-    queryKey: ["employees"],
+    queryKey: ["employees", searchTerm, statusFilter],
     queryFn: async () => {
-      const response = await axiosInstance.get("/api/employees");
+      const response = await axiosInstance.get("/api/employees", {
+        params: {
+          search: searchTerm,
+          status: statusFilter,
+        },
+      });
       return response.data;
     },
   });

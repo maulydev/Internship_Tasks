@@ -6,16 +6,16 @@ import { NextRequest, NextResponse } from "next/server";
 export const POST = async (request: NextRequest) => {
   try {
     const body = await request.json();
-    const { email, password } = body;
+    const { user_email, user_password } = body;
 
-    if (!email || !password) {
+    if (!user_email || !user_password) {
       return NextResponse.json(
         { message: "All fields are required" },
         { status: 400 }
       );
     }
 
-    const user = await db.user.findUnique({ where: { email } });
+    const user = await db.user.findUnique({ where: { email: user_email } });
 
     if (!user)
       return NextResponse.json(
@@ -23,7 +23,7 @@ export const POST = async (request: NextRequest) => {
         { status: 400 }
       );
 
-    const isAuthenticated = await checkPass(password, user.password);
+    const isAuthenticated = await checkPass(user_password, user.password); 
 
     if (!isAuthenticated) {
       return NextResponse.json(

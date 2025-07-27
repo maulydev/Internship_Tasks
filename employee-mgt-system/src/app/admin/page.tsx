@@ -29,7 +29,7 @@ const AdminDashboard = async () => {
               </span>
             </summary>
             <div className="bg-white p-4 absolute right-0 mt-5 shadow-xl">
-              <ul className="space-y-1 mb-2">
+              {/* <ul className="space-y-1 mb-2">
                 <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
                   Profile
                 </li>
@@ -39,7 +39,7 @@ const AdminDashboard = async () => {
                 <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
                   Notifications
                 </li>
-              </ul>
+              </ul> */}
               <SignOut />
             </div>
           </details>

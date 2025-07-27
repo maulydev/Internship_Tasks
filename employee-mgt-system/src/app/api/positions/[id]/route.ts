@@ -2,7 +2,7 @@ import { auth } from "@/utils/auth";
 import db from "@/utils/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-export const PATCH = async (
+export const PUT = async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) => {

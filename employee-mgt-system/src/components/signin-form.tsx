@@ -2,19 +2,18 @@
 
 "use client";
 
-import { Payload } from "@/types";
 import { validateEmail, validatePassword } from "@/utils/validator";
 import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, FormEvent, useState } from "react";
-import { BiLock, BiUser } from "react-icons/bi";
+import { BiLock } from "react-icons/bi";
 import { CgMail } from "react-icons/cg";
-import { FaEye, FaEyeSlash, FaUser } from "react-icons/fa";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { VscLoading } from "react-icons/vsc";
 import { toast } from "react-toastify";
 
-type FormData = { email: string; password: string };
+type FormData = { user_email: string; user_password: string };
 type InputError = { emailError: string; passwordError: string };
 
 const SignInForm = () => {
@@ -24,8 +23,8 @@ const SignInForm = () => {
     passwordError: "",
   });
   const [formData, setFormData] = useState<FormData>({
-    email: "",
-    password: "",
+    user_email: "",
+    user_password: "",
   });
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
@@ -47,8 +46,8 @@ const SignInForm = () => {
     try {
       e.preventDefault();
 
-      const emailValidation = validateEmail(formData.email);
-      const passwordValidation = validatePassword(formData.password);
+      const emailValidation = validateEmail(formData.user_email);
+      const passwordValidation = validatePassword(formData.user_password);
 
       setError({
         emailError: emailValidation.error,
@@ -100,9 +99,10 @@ const SignInForm = () => {
           <CgMail className="text-2xl text-gray-400" />
           <input
             id="email"
-            name="email"
+            name="user_email"
             type="email"
             placeholder="Email"
+            autoComplete="new-password"
             className="px-3 py-4 w-full outline-none"
             onChange={handleInputChange}
           />
@@ -116,15 +116,16 @@ const SignInForm = () => {
           <BiLock className="text-2xl text-gray-400" />
           <input
             id="password"
-            name="password"
+            name="user_password"
             type={showPassword ? "text" : "password"}
             placeholder="Password"
             minLength={8}
             className="px-3 py-4 w-full outline-none"
+            autoComplete="new-password"
             onChange={handleInputChange}
           />
 
-          {formData?.password?.trim() !== "" && (
+          {formData?.user_password?.trim() !== "" && (
             <div className="text-gray-500 pr-4 [&>*]:cursor-pointer">
               {!showPassword ? (
                 <button type="button" onClick={handleTogglePassword}>
@@ -144,7 +145,7 @@ const SignInForm = () => {
       </div>
 
       <button
-        disabled={isSubmitting || !formData.email || !formData.password}
+        disabled={isSubmitting || !formData.user_email || !formData.user_password}
         className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 w-full cursor-pointer disabled:bg-blue-300 disabled:cursor-not-allowed"
       >
         {isSubmitting ? (

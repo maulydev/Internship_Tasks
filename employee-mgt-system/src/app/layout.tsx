@@ -30,7 +30,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <TanstackProvider>{children}</TanstackProvider>
-        <ToastContainer position="top-center" limit={3} />
+        <ToastContainer position="top-center" limit={3} autoClose={1000} />
       </body>
     </html>
   );

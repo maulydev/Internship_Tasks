@@ -7,6 +7,7 @@ import AddButton from "./buttons/add-button";
 import EditDepartmentButton from "./buttons/edit-button";
 import DeleteButton from "./buttons/delete-button";
 import { Meta } from "@/types";
+import { useState } from "react";
 
 const DepartmentTable = () => {
   const {
@@ -15,6 +16,16 @@ const DepartmentTable = () => {
     isError,
     error,
   } = useFetchDepartments();
+
+  const [searchTerm, setSearchTerm] = useState<string>("");
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const filteredDepartments = departments.filter((dept: Meta) =>
+    dept.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <>
@@ -40,6 +51,7 @@ const DepartmentTable = () => {
                     name="searchTerm"
                     placeholder="Search department"
                     className="py-4 outline-none min-w-xs"
+                    onChange={handleSearch}
                   />
                   <FaSearch />
                 </div>
@@ -49,7 +61,7 @@ const DepartmentTable = () => {
               </span>
             </div>
 
-            {departments.length > 0 ? (
+            {filteredDepartments.length > 0 ? (
               <table className="w-full mt-8">
                 <thead>
                   <tr className="[&>*]:text-start [&>*]:p-4 bg-blue-500 text-white">
@@ -59,7 +71,7 @@ const DepartmentTable = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {departments.map((dept: Meta, idx: number) => (
+                  {filteredDepartments.map((dept: Meta, idx: number) => (
                     <tr
                       key={dept.id}
                       className="[&>*]:p-4 hover:bg-blue-50 even:bg-blue-0"

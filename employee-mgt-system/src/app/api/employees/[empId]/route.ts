@@ -70,7 +70,6 @@ export const PUT = async (
         salary: body.salary,
         status: body.status,
         joinedDate: dateTime,
-        // gender: body.gender,
         positionId: body.positionId,
         departmentId: body.departmentId,
       },

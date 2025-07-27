@@ -1,24 +1,86 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { ChangeEvent, useState } from "react";
 import { BiCloudUpload, BiSave } from "react-icons/bi";
 import { BsFiletypeXlsx } from "react-icons/bs";
 import { CgClose } from "react-icons/cg";
+import CSVPreview from "../csv-preview";
+import Papa from "papaparse";
+import { FormData as FormDataType } from "@/types";
+import axiosInstance from "@/utils/axiosInstance";
+import { toast } from "react-toastify";
+import { useQueryClient } from "@tanstack/react-query";
 
-const ImportTrigger = () => {
+const ImportTrigger = ({ disabled }: { disabled: boolean }) => {
   const [showForm, setShowForm] = useState(false);
+
+  const queryClient = useQueryClient();
+
+  const [file, setFile] = useState<File | null>(null);
+  const [previewData, setPreviewData] = useState<FormDataType[]>([]);
 
   const handleClose = () => setShowForm(false);
   const handleOpen = () => setShowForm(true);
 
-  const handleSave = () => {};
-  const handleFilePicker = () => {};
+  const handleSave = async () => {
+    if (!file) return;
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await axiosInstance.post(
+        "/api/employees/upload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        toast.success(response?.data.message);
+
+        queryClient.invalidateQueries({ queryKey: ["employees"] });
+      } else {
+        toast.error("Something went wrong while uploading.");
+      }
+    } catch (error: any) {
+      console.error("Upload failed:", error);
+      if (error.response?.status === 422) {
+        toast.warn(error.response?.data.message);
+      }
+      toast.error("Upload failed. Please try again.");
+    } finally {
+      setFile(null);
+      setPreviewData([]);
+      setShowForm(false);
+    }
+  };
+
+  const handleFilePicker = (e: ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0] ?? null;
+    setFile(selectedFile);
+
+    if (!selectedFile) return;
+
+    Papa.parse(selectedFile, {
+      header: true,
+      skipEmptyLines: true,
+      complete: function (results) {
+        const parsedData = results.data as FormDataType[];
+        setPreviewData(parsedData);
+      },
+    });
+  };
 
   return (
     <>
       <button
+        disabled={disabled}
         onClick={handleOpen}
-        className="bg-green-500 hover:bg-green-400 flex items-center gap-x-2"
+        className="bg-green-500 hover:bg-green-400 flex items-center gap-x-2 disabled:cursor-not-allowed"
       >
         <BsFiletypeXlsx className="text-xl" />
         <span>Import</span>
@@ -48,26 +110,30 @@ const ImportTrigger = () => {
             </p>
           </div>
 
-          <label htmlFor="filePicker" className="cursor-pointer">
-            <div
-              onClick={handleFilePicker}
-              className="w-full bg-gray-100 text-9xl py-28 flex flex-col items-center justify-center text-gray-500 hover:bg-gray-200"
-            >
-              <BiCloudUpload />
-              <p className="text-base">Tap to Upload an Excel or a CSV file</p>
-            </div>
-          </label>
+          {file ? (
+            <CSVPreview previewData={previewData} />
+          ) : (
+            <label htmlFor="filePicker" className="cursor-pointer">
+              <div className="w-full bg-gray-100 text-9xl py-28 flex flex-col items-center justify-center text-gray-500 hover:bg-gray-200">
+                <BiCloudUpload />
+                <p className="text-base">
+                  Tap to Upload an Excel or a CSV file
+                </p>
+              </div>
+            </label>
+          )}
 
           <input
+            accept=".csv"
             id="filePicker"
-            hidden
             type="file"
-            name="empData"
-            className="py-4 outline-none w-full bg-gray-100 px-4 cursor-pointer"
+            name="empCSV"
+            className="py-4 outline-none w-full bg-gray-100 px-4 cursor-pointer file:hidden"
+            onChange={handleFilePicker}
           />
 
           <button
-            disabled
+            disabled={!file}
             onClick={handleSave}
             className="bg-blue-500 hover:bg-blue-400 flex items-center justify-center text-white gap-x-2 w-full p-4 cursor-pointer mt-4 disabled:bg-blue-300 disabled:cursor-not-allowed"
           >
