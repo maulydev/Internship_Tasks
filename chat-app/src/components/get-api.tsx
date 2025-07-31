@@ -30,7 +30,7 @@ const GetApi = () => {
   const handleGetApi = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("/api/protected", {
+      const response = await axios.get("/api/chat", {
         headers: {
           Authorization: `Bearer ${getAccessToken()}`,
         },
@@ -41,7 +41,7 @@ const GetApi = () => {
         try {
           const newToken = await refreshAccessToken();
 
-          const retryResponse = await axios.get("/api/protected", {
+          const retryResponse = await axios.get("/api/chat", {
             headers: {
               Authorization: `Bearer ${newToken}`,
             },

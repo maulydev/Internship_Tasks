@@ -78,13 +78,7 @@ const SignInForm = () => {
 
         const access = jwtDecode(accessToken) as Payload;
 
-        if (access?.role === "ADMIN") {
-          router.replace("/protected/admin");
-        } else if (access?.role === "USER") {
-          router.replace("/protected/user");
-        } else {
-          router.replace("/not-found");
-        }
+        router.replace("/chat");
       }
     } catch (error: any) {
       toast.error(error?.response?.data?.message);

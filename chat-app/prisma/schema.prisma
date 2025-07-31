@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,18 +7,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  USER
-  ADMIN
-}
-
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
   name      String
   password  String
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
+
+  messages  Message[]
+  rooms     RoomMember[]
 }
 
 model Otp {
@@ -32,4 +23,39 @@ model Otp {
   email     String   @unique
   otp       String
   expiresAt DateTime
+}
+
+model Room {
+  id        Int          @id @default(autoincrement())
+  name      String?
+  isGroup   Boolean      @default(false)
+  createdAt DateTime     @default(now())
+
+  messages  Message[]
+  members   RoomMember[]
+}
+
+model RoomMember {
+  id      Int   @id @default(autoincrement())
+  room    Room  @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  roomId  Int
+
+  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId  Int
+
+  joinedAt DateTime @default(now())
+
+  @@unique([roomId, userId])
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+
+  sender    User     @relation(fields: [senderId], references: [id])
+  senderId  Int
+
+  room      Room     @relation(fields: [roomId], references: [id])
+  roomId    Int
 }
