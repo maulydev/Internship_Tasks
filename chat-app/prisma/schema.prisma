@@ -1,0 +1,57 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id               String    @id @default(cuid())
+    email            String    @unique
+    name             String
+    password         String
+    createdAt        DateTime  @default(now())
+    sentMessages     Message[] @relation("SentMessages")
+    receivedMessages Message[] @relation("ReceivedMessages")
+    group            Group[]
+}
+
+model Otp {
+    id        Int      @id @default(autoincrement())
+    email     String   @unique
+    otp       String
+    expiresAt DateTime
+}
+
+model Message {
+    id      String @id @default(cuid())
+    content String
+
+    sender   User   @relation("SentMessages", fields: [senderId], references: [id])
+    senderId String
+
+    receiver   User?   @relation("ReceivedMessages", fields: [receiverId], references: [id])
+    receiverId String? // Null means it's a group message
+
+    group   Group?  @relation(fields: [groupId], references: [id])
+    groupId String? // Null means it's a private message
+
+    isSystem Boolean @default(false)
+
+    createdAt DateTime @default(now())
+}
+
+model Group {
+    id   String @id @default(cuid())
+    name String
+
+    owner   User   @relation(fields: [ownerId], references: [id])
+    ownerId String
+
+    description String? @default("")
+
+    createdAt DateTime  @default(now())
+    messages  Message[]
+}

@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String
+  password  String
+  role      Role     @default(ADMIN)
+  createdAt DateTime @default(now())
+}
+
+model Otp {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  otp       String
+  expiresAt DateTime
+}
+
+model Department {
+  id        Int         @id @default(autoincrement())
+  name      String
+  employees Employees[]
+}
+
+model Position {
+  id        Int         @id @default(autoincrement())
+  name      String
+  employees Employees[]
+}
+
+model Employees {
+  id           Int         @id @default(autoincrement())
+  empId        String      @unique
+  email        String      @unique
+  firstName    String
+  lastName     String
+  phone        String      @unique
+  salary       String
+  joinedDate   DateTime    @default(now())
+  status       Status      @default(ACTIVE)
+  createdAt    DateTime    @default(now())
+  department   Department? @relation(fields: [departmentId], references: [id])
+  departmentId Int?
+  position     Position    @relation(fields: [positionId], references: [id])
+  positionId   Int
+  inTrash      Boolean     @default(false)
+}
