@@ -22,7 +22,6 @@ export const POST = async () => {
       {
         name: decodedRefresh?.name,
         userId: decodedRefresh.userId,
-        role: decodedRefresh.role,
       },
       "access"
     );

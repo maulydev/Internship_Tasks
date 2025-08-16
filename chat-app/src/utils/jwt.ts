@@ -16,6 +16,7 @@ export function signJwt(payload: object, type: TokenType) {
 }
 
 export function verifyJwt(token: string, type: TokenType) {
+
   try {
     if (type === "access") return jwt.verify(token, ACCESS_SECRET);
 

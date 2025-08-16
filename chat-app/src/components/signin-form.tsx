@@ -74,9 +74,10 @@ const SignInForm = () => {
         }
 
         localStorage.setItem("access", accessToken);
-        toast.success(response?.data?.message || "Sign In successful");
-
         const access = jwtDecode(accessToken) as Payload;
+        toast.success(
+          response?.data?.message || `Welcome back, ${access?.name}`
+        );
 
         router.replace("/chat");
       }

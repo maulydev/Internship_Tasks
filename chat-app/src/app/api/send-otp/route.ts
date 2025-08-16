@@ -37,7 +37,8 @@ export const POST = async (request: NextRequest) => {
       },
       { status: 200 }
     );
-  } catch {
-    return NextResponse.json({ message: "OTP Failed" }, { status: 500 });
+  } catch (error) {
+    console.log(error)
+    return NextResponse.json({ message: "OTP Failed", detail: error }, { status: 500 });
   }
 };

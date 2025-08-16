@@ -12,7 +12,7 @@ export const getSession = async () => {
   if (!payload) return null;
 
   return {
-    session: { userId: payload.userId, name: payload.name, role: payload.role },
+    session: { userId: payload.userId, name: payload.name },
     authenticated: true,
   };
 };

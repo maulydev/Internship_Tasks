@@ -1,21 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ToastContainer } from "react-toastify";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import TanstackProvider from "@/providers/tanstack-provider";
 
 export const metadata: Metadata = {
-  title: "Chat App",
-  description: "Chat App",
+  title: "Chat Buddy",
+  description: "Chat Buddy",
 };
 
 export default function RootLayout({
@@ -25,10 +15,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="bg-gray-700">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+      <body className={`antialiased`}>
+        <TanstackProvider>{children}</TanstackProvider>
         <ToastContainer position="top-center" limit={3} />
       </body>
     </html>

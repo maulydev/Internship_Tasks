@@ -1,61 +1,57 @@
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  email     String    @unique
-  name      String
-  password  String
-  createdAt DateTime  @default(now())
-
-  messages  Message[]
-  rooms     RoomMember[]
+    id               String    @id @default(cuid())
+    email            String    @unique
+    name             String
+    password         String
+    createdAt        DateTime  @default(now())
+    sentMessages     Message[] @relation("SentMessages")
+    receivedMessages Message[] @relation("ReceivedMessages")
+    group            Group[]
 }
 
 model Otp {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  otp       String
-  expiresAt DateTime
-}
-
-model Room {
-  id        Int          @id @default(autoincrement())
-  name      String?
-  isGroup   Boolean      @default(false)
-  createdAt DateTime     @default(now())
-
-  messages  Message[]
-  members   RoomMember[]
-}
-
-model RoomMember {
-  id      Int   @id @default(autoincrement())
-  room    Room  @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  roomId  Int
-
-  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId  Int
-
-  joinedAt DateTime @default(now())
-
-  @@unique([roomId, userId])
+    id        Int      @id @default(autoincrement())
+    email     String   @unique
+    otp       String
+    expiresAt DateTime
 }
 
 model Message {
-  id        Int      @id @default(autoincrement())
-  content   String
-  createdAt DateTime @default(now())
+    id      String @id @default(cuid())
+    content String
 
-  sender    User     @relation(fields: [senderId], references: [id])
-  senderId  Int
+    sender   User   @relation("SentMessages", fields: [senderId], references: [id])
+    senderId String
 
-  room      Room     @relation(fields: [roomId], references: [id])
-  roomId    Int
+    receiver   User?   @relation("ReceivedMessages", fields: [receiverId], references: [id])
+    receiverId String? // Null means it's a group message
+
+    group   Group?  @relation(fields: [groupId], references: [id])
+    groupId String? // Null means it's a private message
+
+    isSystem Boolean @default(false)
+
+    createdAt DateTime @default(now())
+}
+
+model Group {
+    id   String @id @default(cuid())
+    name String
+
+    owner   User   @relation(fields: [ownerId], references: [id])
+    ownerId String
+
+    description String? @default("")
+
+    createdAt DateTime  @default(now())
+    messages  Message[]
 }

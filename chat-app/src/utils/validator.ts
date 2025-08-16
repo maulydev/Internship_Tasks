@@ -20,8 +20,6 @@ export const validatePassword = (password: string) => {
   return { error };
 };
 
-
-
 export const validateEmail = (email: string) => {
   let error = "";
 

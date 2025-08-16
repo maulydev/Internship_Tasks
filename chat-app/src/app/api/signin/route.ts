@@ -32,12 +32,12 @@ export const POST = async (request: NextRequest) => {
       );
     }
 
-    const payload = { name: user.name, userId: user?.id, role: user.role };
+    const payload = { name: user.name, userId: user?.id };
     const access = signJwt(payload, "access") || "";
     const refresh = signJwt(payload, "refresh") || "";
 
     const response = NextResponse.json(
-      { message: `Welcome ${user?.name} 👋`, data: { access } },
+      { message: `Welcome back, ${user?.name.split(" ")[0]} 👋`, data: { access } },
       { status: 200 }
     );
 

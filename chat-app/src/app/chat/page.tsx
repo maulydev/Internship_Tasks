@@ -1,6 +1,6 @@
 const ChatLanding = () => {
   return (
-    <main className="flex flex-1 items-center justify-center bg-gray-800 text-white">
+    <main className="flex flex-1 h-svh items-center justify-center bg-gray-800 text-white">
       <div className="text-center px-6 md:px-0 max-w-xl">
         <div className="text-6xl mb-6">💬</div>
 

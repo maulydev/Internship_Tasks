@@ -1,6 +1,4 @@
 import Sidebar from "@/components/chat/sidebar";
-import GetApi from "@/components/get-api";
-import SignOut from "@/components/signout";
 import { verifyJwt } from "@/utils/jwt";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -22,6 +20,7 @@ const ProtectedLayout = async ({ children }: { children: ReactNode }) => {
       </div>
     );
   } catch (error) {
+    console.log(error);
     redirect("/signin");
   }
 };
